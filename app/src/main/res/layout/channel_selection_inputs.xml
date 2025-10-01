@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="Connection Mode:"
+            android:textSize="19sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="1dp">
+
+        <CheckBox
+            android:id="@+id/http_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="HTTP"
+            android:layout_weight="1"
+            android:checked="false"
+            android:padding="8dp"/>
+
+        <CheckBox
+            android:id="@+id/websocket_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Websocket"
+            android:layout_weight="1"
+            android:checked="false"
+            android:padding="8dp"/>
+
+        <CheckBox
+            android:id="@+id/both_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Both"
+            android:layout_weight="1"
+            android:checked="false"
+            android:enabled="false"
+            android:padding="8dp"/>
+
+    </LinearLayout>
+
+<!-- submit data   section-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="20dp">
+
+        <Button
+            android:id="@+id/serviceButton"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:text="Start Service"
+            android:background="@drawable/rounded_button_background"
+            android:padding="15dp"/>
+    </LinearLayout>
+
+
+</LinearLayout>
