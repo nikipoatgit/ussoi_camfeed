@@ -34,6 +34,7 @@
             android:text="HTTP"
             android:layout_weight="1"
             android:checked="false"
+            android:enabled="false"
             android:padding="8dp"/>
 
         <CheckBox
@@ -51,7 +52,7 @@
             android:layout_height="wrap_content"
             android:text="Both"
             android:layout_weight="1"
-            android:checked="false"
+            android:checked="true"
             android:enabled="false"
             android:padding="8dp"/>
 

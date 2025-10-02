@@ -28,7 +28,8 @@ public class WebSocketHandler {
     private MessageCallback callback;
     public interface MessageCallback {
         void onOpen();
-        void onPayloadReceived(String payload);
+        void onPayloadReceivedtext(String payload);
+        void onPayloadReceivedbyte(byte[] payload);
         void onClosed();
         void onError(String error);
     }
@@ -38,11 +39,15 @@ public class WebSocketHandler {
         this.callback = callback;
 
     }
+
+    private int reconnectAttempts = 0;
+    private final int MAX_RECONNECT = 1;
     public void setupConnection(Context context,String urlPath){
         this.context=context;
         saveInputFields = SaveInputFields.getInstance( this.context);
         prefs = saveInputFields.get_shared_pref();
-        String wsUrl = normalizeUrl(prefs.getString(KEY_IP,"10.0.0.1")) + urlPath.trim();;
+        String wsUrl = normalizeUrl(prefs.getString(KEY_IP,"10.0.0.1")) + urlPath.trim();
+        Log.d(TAG,"URl " + wsUrl);
         Request request = new Request.Builder().url(wsUrl).build();
         webSocket = client.newWebSocket(request, new WebSocketListener() {
             @Override
@@ -54,7 +59,7 @@ public class WebSocketHandler {
             @Override
             public void onMessage(WebSocket webSocket, String text) {
                 Log.d(TAG,"WebSocket Text Message Received!");
-                callback.onPayloadReceived(text);
+                callback.onPayloadReceivedtext(text);
             }
             /**
              * This is the method you need for binary data.
@@ -65,15 +70,20 @@ public class WebSocketHandler {
                 Log.d(TAG,"WebSocket Binary Message Received!");
                 // To use the data, convert the ByteString to a standard byte array.
                 byte[] byteArray = bytes.toByteArray();
+                callback.onPayloadReceivedbyte(byteArray);
                 Log.d(TAG, "Received " + byteArray.length + " bytes.");
             }
-
             @Override
             public void onFailure(WebSocket webSocket, Throwable t, Response response) {
                 Log.d(TAG,"WebSocket Failure!"+ t.getMessage());
                 callback.onError(t.getMessage());
 
-                new Handler(Looper.getMainLooper()).postDelayed(() -> setupConnection(context,urlPath), 3000);
+                if (reconnectAttempts < MAX_RECONNECT) {
+                    reconnectAttempts++;
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> setupConnection(context,urlPath), 3000);
+                } else {
+                    Log.d(TAG,"Max reconnect attempts reached.");
+                }
             }
 
             @Override

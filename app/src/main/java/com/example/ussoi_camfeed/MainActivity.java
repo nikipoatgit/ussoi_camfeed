@@ -142,7 +142,7 @@ public class MainActivity  extends AppCompatActivity {
     void startMainService(){
         //initialise Bt obj
         if (btswitch.isChecked()) {
-            bluetoothHandler = BluetoothHandler.getInstance();
+            bluetoothHandler = BluetoothHandler.getInstance(this);
             bluetoothHandler.setDevice(selectedBtDevice);
         }
         serviceButton.setText("Stop Service");

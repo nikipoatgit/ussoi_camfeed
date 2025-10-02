@@ -28,16 +28,13 @@ public class BluetoothHandler {
     private BluetoothDevice device;
     private Connection connection;
     private WebSocketHandler webSocketHandler;
-    private SaveInputFields saveInputFields;
-    private BluetoothHandler(){
+    private BluetoothHandler(Context context){
         this.context = context.getApplicationContext();
         this.connection = new Connection(this.context);
-        this.saveInputFields = SaveInputFields.getInstance(context);
-
     };
-    public static synchronized BluetoothHandler getInstance(){
+    public static synchronized BluetoothHandler getInstance(Context context){
         if (instance == null){
-            instance = new BluetoothHandler();
+            instance = new BluetoothHandler(context);
         }
         return instance;
     }
@@ -67,37 +64,26 @@ public class BluetoothHandler {
         webSocketHandler = new WebSocketHandler(new WebSocketHandler.MessageCallback() {
             @Override
             public void onOpen() {
-                Log.d("Signaling", "Connected to signaling server");
+                Log.d(TAG, "Connected to WS");
             }
 
             @Override
-            public void onPayloadReceived(String payload) {
-                Log.d("Signaling", " Received signaling payload: " + payload);
-
-                // Example: parse JSON
-                try {
-                    JSONObject json = new JSONObject(payload);
-                    String type = json.optString("type");
-                    if ("offer".equals(type)) {
-                        // handle WebRTC offer
-                    } else if ("answer".equals(type)) {
-                        // handle WebRTC answer
-                    } else if ("candidate".equals(type)) {
-                        // handle ICE candidate
-                    }
-                } catch (Exception e) {
-                    Log.e("Signaling", "Failed to parse signaling payload", e);
-                }
+            public void onPayloadReceivedtext(String payload) {
             }
+            @Override
+            public void onPayloadReceivedbyte(byte[] mavlinkBytes) {
+                boolean success = SendReceive.getInstance().send(mavlinkBytes);
+                Log.d(TAG, success ? "[TX] " + mavlinkBytes.length : "[TX] Failed: " +  mavlinkBytes.length);
 
+            }
             @Override
             public void onClosed() {
-                Log.d("Signaling", "Signaling connection closed: " );
+                Log.d(TAG, "WS connection closed: " );
             }
 
             @Override
             public void onError(String error) {
-                Log.e("Signaling", "Error in signaling: " + error);
+                Log.e(TAG, "Error : " + error);
             }
         });
         webSocketHandler.setupConnection(context,telemetry);
@@ -142,7 +128,6 @@ public class BluetoothHandler {
 
         connection.connect(device, true, connectionListener, null);
     }
-    //note u can edit SendReceive.java file of library then modify line 155 to 160 , so u can directly get bytedata
     private void setupBluetoothListener() {
         // Create the listener object
         BluetoothListener.onReceiveListener myListener = new BluetoothListener.onReceiveListener() {
@@ -159,17 +144,10 @@ public class BluetoothHandler {
         SendReceive.getInstance().setOnReceiveListener(myListener);
 
     }
-    public void sendData(byte[] mavlinkBytes) {
-        boolean success = SendReceive.getInstance().send(mavlinkBytes);
-        Log.d(TAG, success ? "[TX] " + mavlinkBytes.length : "[TX] Failed: " +  mavlinkBytes.length);
-    }
-    public void disconnect() {
-        connection.disconnect();
-    }
-    public boolean isConnected() {
-        return connection.isConnected();
-    }
     public void stopAllServices() {
-        disconnect();
+        if(connection.isConnected()) {
+            connection.disconnect();
+        }
+        webSocketHandler.closeConnection();
     }
 }
