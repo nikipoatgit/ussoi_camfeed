@@ -41,7 +41,7 @@ public class WebSocketHandler {
     }
 
     private int reconnectAttempts = 0;
-    private final int MAX_RECONNECT = 1;
+    private final int MAX_RECONNECT = 10;
     public void setupConnection(Context context,String urlPath){
         this.context=context;
         saveInputFields = SaveInputFields.getInstance( this.context);
@@ -52,13 +52,11 @@ public class WebSocketHandler {
         webSocket = client.newWebSocket(request, new WebSocketListener() {
             @Override
             public void onOpen(WebSocket webSocket, Response response) {
-                Log.d(TAG,"WebSocket connected!");
                 callback.onOpen();
             }
 
             @Override
             public void onMessage(WebSocket webSocket, String text) {
-                Log.d(TAG,"WebSocket Text Message Received!");
                 callback.onPayloadReceivedtext(text);
             }
             /**
@@ -67,7 +65,6 @@ public class WebSocketHandler {
              */
             @Override
             public void onMessage(WebSocket webSocket, ByteString bytes) {
-                Log.d(TAG,"WebSocket Binary Message Received!");
                 // To use the data, convert the ByteString to a standard byte array.
                 byte[] byteArray = bytes.toByteArray();
                 callback.onPayloadReceivedbyte(byteArray);

@@ -12,6 +12,8 @@ import android.content.SharedPreferences;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -43,6 +45,9 @@ public class UsbHandler {
         }
         return instance;
     }
+    private void showToast(String message) {
+        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context, message, Toast.LENGTH_SHORT).show());
+    }
     public void setupConnection(){
         saveInputFields = SaveInputFields.getInstance(context);
         prefs = saveInputFields.get_shared_pref();
@@ -53,7 +58,7 @@ public class UsbHandler {
                 UsbSerialProber.getDefaultProber().findAllDrivers(usbManager);
         if (availableDrivers.isEmpty()) {
             Log.w(TAG, "No USB serial drivers available");
-            Toast.makeText(context, "No USB serial drivers available", Toast.LENGTH_SHORT).show();
+            showToast( "No USB serial drivers available");
             return;
         }
         UsbSerialDriver driver = availableDrivers.get(0);
@@ -74,7 +79,7 @@ public class UsbHandler {
         UsbDeviceConnection connection = usbManager.openDevice(device);
         if (connection == null) {
             Log.e(TAG, "Failed to open USB device connection");
-            Toast.makeText(context, "Failed to open USB device connection", Toast.LENGTH_SHORT).show();
+            showToast("Failed to open USB device connection");
             return;
         }
 
@@ -148,7 +153,7 @@ public class UsbHandler {
                     int len = port.read(buffer, READ_WAIT_MILLIS);
                     if (len > 0) {
                         byte[] mavlinkBytes = java.util.Arrays.copyOf(buffer, len);
-
+                        webSocketHandler.connSendPayloadBytes(mavlinkBytes);
                         Log.d(TAG, "RX (" + len + " bytes): " );
                     }
                 } catch (IOException e) {

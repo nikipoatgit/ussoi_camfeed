@@ -32,17 +32,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:text="Use Bluetooth "
+            android:text="Mavlink"
             android:textSize="19sp"
             android:textStyle="bold" />
 
         <Switch
-            android:id="@+id/btswitch1"
+            android:id="@+id/mavswitch1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
     </LinearLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -63,7 +62,26 @@
             android:layout_height="wrap_content" />
 
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="10dp">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="Bluetooth "
+            android:textSize="19sp"
+            android:textStyle="bold" />
+
+        <Switch
+            android:id="@+id/btswitch1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

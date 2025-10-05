@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity; // provides backward compatibility
@@ -46,10 +47,13 @@ public class MainActivity  extends AppCompatActivity {
     private CheckBox websocket;
     private Switch btswitch;
     private Switch videoswitch;
+    private Switch mavlinkButton;
     private Button serviceButton;
     private boolean serviceRunning = false;
     private boolean requestedAny;
     private BluetoothDevice selectedBtDevice; // Member variable to hold the chosen device
+    private static final int PERMISSION_REQUEST_CODE = 1001;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,11 +72,12 @@ public class MainActivity  extends AppCompatActivity {
         btswitch = findViewById(R.id.btswitch1);
         videoswitch = findViewById(R.id.videoswitch1);
         serviceButton = findViewById(R.id.serviceButton);
+        mavlinkButton = findViewById(R.id.mavswitch1);
 
         // initialise obj instance for saved prefs
         saveInputFields = saveInputFields.getInstance(this);
 
-        saveInputFields.restorePreferences(btswitch,videoswitch,baudrate,url_ip,http,websocket);
+        saveInputFields.restorePreferences(btswitch,videoswitch,baudrate,url_ip,http,websocket,mavlinkButton);
 
         // Request Bluetooth permissions (Android 12+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -92,13 +97,14 @@ public class MainActivity  extends AppCompatActivity {
             registerReceiver(permissionReceiver, permissionFilter);
         }
         // Check connected USB devices at startup
+        checkAndRequestPermissions();
         checkExistingDevices();
         requestNotificationPermission();
         serviceButton.setOnClickListener(v -> {
             if (http.isChecked() ^ websocket.isChecked() ) {
                 if (!serviceRunning) {
-                    saveInputFields.savePreferences(btswitch.isChecked(), videoswitch.isChecked(), baudrate, url_ip, http.isChecked(), websocket.isChecked());
-                    if (btswitch.isChecked()) {
+                    saveInputFields.savePreferences(btswitch.isChecked(), videoswitch.isChecked(), baudrate, url_ip, http.isChecked(), websocket.isChecked(),mavlinkButton.isChecked());
+                    if (btswitch.isChecked() && mavlinkButton.isChecked()) {
                         pickBluetoothDeviceThenStart();
                         }
                     else {
@@ -115,6 +121,59 @@ public class MainActivity  extends AppCompatActivity {
 
         });
     }
+    private void checkAndRequestPermissions() {
+        List<String> permissionsNeeded = new ArrayList<>();
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            permissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            permissionsNeeded.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            permissionsNeeded.add(Manifest.permission.READ_PHONE_STATE);
+        }
+
+        if (!permissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    permissionsNeeded.toArray(new String[0]),
+                    PERMISSION_REQUEST_CODE
+            );
+        } else {
+            Log.d("PermissionCheck", "All permissions granted!");
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            boolean allGranted = true;
+
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false;
+                    break;
+                }
+            }
+
+            if (allGranted) {
+                Log.d("PermissionCheck", "All permissions granted!");
+            } else {
+                Log.w("PermissionCheck", "User denied one or more permissions.");
+            }
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -178,8 +237,9 @@ public class MainActivity  extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             if (ACTION_BT_FAILED.equals(intent.getAction())) {
                 Toast.makeText(MainActivity.this, "Bluetooth connection failed", Toast.LENGTH_SHORT).show();
+                Log.d(TAG,"bt failed service stopped");
                 selectedBtDevice = null;
-                stopMainService();   // stop the service & reset UI
+//                stopMainService();   // stop the service & reset UI
             }
         }
     };

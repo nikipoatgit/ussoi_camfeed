@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -38,24 +40,27 @@ public class BluetoothHandler {
         }
         return instance;
     }
+    private void showToast(String message) {
+        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context, message, Toast.LENGTH_SHORT).show());
+    }
     public void setDevice(BluetoothDevice device){
         this.device = device;
     }
     public void setupConnection(){
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if(adapter == null){
-            Toast.makeText(context, "Bluetooth not supported", Toast.LENGTH_SHORT).show();
+            showToast("Bluetooth not supported");
             return;
         }
         if (!adapter.isEnabled()) {
-            Toast.makeText(context, "Please enable Bluetooth first", Toast.LENGTH_SHORT).show();
+            showToast("Please enable Bluetooth first");
             return;
         }
         // Android 12+ permission check
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT)
                         != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(context, "BLUETOOTH_CONNECT permission required", Toast.LENGTH_SHORT).show();
+            showToast("BLUETOOTH_CONNECT permission required");
             return;
         }
         // Immediately connect to the supplied device
@@ -96,18 +101,18 @@ public class BluetoothHandler {
                         switch (state) {
                             case Connection.CONNECTING:
                                 Log.d(TAG, "Connecting…");
-                                Toast.makeText(context, "Connecting…", Toast.LENGTH_SHORT).show();
+                                showToast("Connecting…");
                                 break;
                             case Connection.CONNECTED:
                                 Log.d(TAG, "Connected successfully");
                                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT)
                                         != PackageManager.PERMISSION_GRANTED) return;
-                                Toast.makeText(context, "Connected to " + device.getName(), Toast.LENGTH_SHORT).show();
+                                showToast("Connected to " + device.getName());
                                 setupBluetoothListener();
                                 break;
                             case Connection.DISCONNECTED:
                                 Log.d(TAG, "Disconnected");
-                                Toast.makeText(context, "Disconnected", Toast.LENGTH_SHORT).show();
+                                showToast( "Disconnected");
                                 connection.disconnect();
                                 break;
                         }
@@ -116,7 +121,7 @@ public class BluetoothHandler {
                     @Override
                     public void onConnectionFailed(int errorCode) {
                         Log.d(TAG, "Connection failed, code " + errorCode);
-                        Toast.makeText(context, "Connection failed", Toast.LENGTH_SHORT).show();
+                        showToast("Connection failed");
                         //  Create and send the broadcast to main activity to stop bg thread
                         Intent intent = new Intent(ACTION_BT_FAILED);
                         context.sendBroadcast(intent);

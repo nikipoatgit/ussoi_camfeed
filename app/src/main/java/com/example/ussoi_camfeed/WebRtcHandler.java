@@ -61,7 +61,6 @@ public class WebRtcHandler {
         //                "bitrate":1000,
         //                "switchCamera": "toggle"
         //        }
-        //
         if ( json.has("videoparams")){
             JSONObject videoParams = json.optJSONObject("videoparams");
             if (videoParams != null) {
@@ -97,7 +96,7 @@ public class WebRtcHandler {
 
             @Override
             public void onPayloadReceivedtext(String payload) {
-                Log.d(TAG, "Received signaling payload ");
+                Log.d(TAG, "Received signaling payload :"+ payload);
                 try {
                     JSONObject json = new JSONObject(payload);
                     String type = json.optString("type");
@@ -115,7 +114,6 @@ public class WebRtcHandler {
                     Log.e(TAG, "Failed to parse signaling payload", e);
                 }
             }
-
             @Override
             public void onClosed() {
                 Log.d(TAG, "WebSocket connection closed");
@@ -185,13 +183,26 @@ public class WebRtcHandler {
                 Log.w(TAG, "onAddTrack called unexpectedly in send-only client.");
             }
             @Override
-            public void onSignalingChange(PeerConnection.SignalingState signalingState) {}
+            public void onIceConnectionChange(PeerConnection.IceConnectionState state) {
+                Log.d(TAG, "onIceConnectionChange: " + state);
+            }
+
             @Override
-            public void onIceConnectionChange(PeerConnection.IceConnectionState iceConnectionState) {}
+            public void onConnectionChange(PeerConnection.PeerConnectionState newState) {
+                Log.d(TAG, "onConnectionChange: " + newState);
+            }
+
+            @Override
+            public void onIceGatheringChange(PeerConnection.IceGatheringState state) {
+                Log.d(TAG, "onIceGatheringChange: " + state);
+            }
+
+            @Override
+            public void onSignalingChange(PeerConnection.SignalingState state) {
+                Log.d(TAG, "onSignalingChange: " + state);
+            }
             @Override
             public void onIceConnectionReceivingChange(boolean b) {}
-            @Override
-            public void onIceGatheringChange(PeerConnection.IceGatheringState iceGatheringState) {}
             @Override
             public void onIceCandidatesRemoved(IceCandidate[] iceCandidates) {}
             @Override
@@ -305,6 +316,7 @@ public class WebRtcHandler {
     }
 
     private void handleAnswer(String sdp) {
+        Log.d(TAG,">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         peerConnection.setRemoteDescription(new SdpObserverAdapter("RemoteAnswer"), new SessionDescription(SessionDescription.Type.ANSWER, sdp));
     }
 
@@ -347,19 +359,19 @@ public class WebRtcHandler {
             }
         }
 
-        // Prefer the front camera, but use the back camera if the front is not available.
-        if (frontCameraDeviceName != null) {
-            return enumerator.createCapturer(frontCameraDeviceName, null);
-        } else if (backCameraDeviceName != null) {
+        // Prefer the back camera, but use the front camera
+        if (backCameraDeviceName != null) {
             return enumerator.createCapturer(backCameraDeviceName, null);
         }
+        else if (frontCameraDeviceName != null) {
+            return enumerator.createCapturer(frontCameraDeviceName, null);
+        }
+
 
         return null;
     }
 
 
-
-    // NEW METHOD: Change the capture format (resolution and FPS) while streaming
     public void changeCaptureFormat(int width, int height, int fps) {
         if (videoCapturer != null) {
             Log.d(TAG, "Changing capture format to " + width + "x" + height + "@" + fps);
@@ -390,6 +402,7 @@ public class WebRtcHandler {
     }
 
     public void stopAllServices() {
+        webSocketHandler.closeConnection();
         Log.d(TAG, "Closing WebRTC session...");
 
         if (videoCapturer != null) {
@@ -423,10 +436,15 @@ public class WebRtcHandler {
         }
 
         if (rootEgl != null) {
-            rootEgl.release();
+            try {
+                rootEgl.release();
+            } catch (Exception e) {
+                Log.e(TAG, "EglBase release failed, possibly already released", e);
+            }
             rootEgl = null;
         }
     }
+
 
 }
 
