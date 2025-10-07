@@ -15,21 +15,13 @@
 
 ##  System Architecture
 
-The following diagram illustrates the data flow and interaction between the Android application, the client, and the connected hardware (e.g., flight controller).
-
 ![USSOI CAMfeed Flowchart](doc/ussoiFlowchart.jpg)
 
----
 
-##  Key Features
-
-* **Real-time Streaming:** Low-latency video and audio streaming using WebRTC.
-* **Remote Control:** WebSocket API for starting/stopping services like streaming and Mavlink communication.
-* **Device Telemetry:** Get real-time status updates from the Android device, including battery, network, and GPS data.
-* **Bi-directional UART:** Raw telemetry endpoint for direct communication with connected hardware.
+## APP
 * **Background Operation:** The service is designed to run persistently in the background, even when the screen is off.
-
----
+* The application initiates a connection request over HTTP/HTTPS and then upgrades the protocol to WebSocket (WS/WSS).
+* AppCN first connects to ``ws://<ip>/control/api`` based on the selected preference it then establishes subsequent connections to the service endpoints (HTTPS or WS/WSS) — therefore the host must be listening on all listed endpoints .
 
 ##  API Endpoints
 
@@ -37,20 +29,20 @@ The system exposes three primary WebSocket endpoints for different functionaliti
 
 ### 1. Streaming API: `ws://<ip>/streaming`
 
-This endpoint handles the WebRTC negotiation for establishing the video and audio stream.
+This endpoint handles the WebRTC negotiation for establishing the video and audio stream handled by `WebRtcHandler.java`.
 
 #### DATA  FORMAT 
 
-1.  Upon a client's successful connection, the server sends a status update.
+1.  Upon a client's successful connection, the client sends a status (connected / not connected) update.
 
     ```json
     {
       "type": "getStatus",
-      "status": "connection established"
+      "status": "<status>"
     }
     ```
 
-2.  The server then immediately sends its **ICE candidates** and **SDP offer** to initiate the WebRTC session.
+2.  The client then immediately sends its **ICE candidates** and **SDP offer** to initiate the WebRTC session.
 
     * **ICE Candidate Example:**
         ```json
@@ -71,7 +63,7 @@ This endpoint handles the WebRTC negotiation for establishing the video and audi
         }
         ```
 
-3.  The client must respond with its own **SDP answer** and **ICE candidates** to complete the handshake.
+3.  The host must respond with its own **SDP answer** and **ICE candidates** to complete the handshake.
 
     * **SDP Answer:**
         ```json
@@ -110,7 +102,7 @@ You can configure the video stream on-the-fly by sending a `config` message.
 ## 2. Control API : `ws://<ip>/control/api`
 
 ### 🎥 Streaming Controls
-All actions are processed by `ServiceManager.java`.
+All actions here are processed by `ServiceManager.java`.
 1. This allows for starting and stopping the video stream.
 
     * **Stop Streaming**
@@ -191,4 +183,6 @@ Request a  status report from the Android device.
 
 
 ### 3. Telemetry API: `ws://<ip>/telemetry`
-This endpoint provides a raw, bi-directional communication channel for UART/serial data. Any data sent or received through this WebSocket is forwarded directly to/from the connected hardware. Data is transmitted as a raw byte stream.
+* This endpoint provides a raw, bi-directional communication channel for UART/serial data. Any data sent or received through this WebSocket is forwarded directly to/from the connected hardware. Data is transmitted as a raw byte stream.
+---
+### end of file 
