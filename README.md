@@ -1,6 +1,9 @@
 # USSOI CAMfeed 
 
-> Note: API requests are not authenticated.
+> Note: API requests are not authenticated.` yet to implement `
+
+*  See https://github.com/nikipoatgit/ussoi_camfeed for Host Implementation.
+
 ## 📑 Table of Contents
 
 - [System Architecture](#-system-architecture)
