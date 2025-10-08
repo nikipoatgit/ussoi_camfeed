@@ -1,8 +1,17 @@
 # USSOI CAMfeed 
 
-> Note: API requests are not authenticated.` yet to implement `
+- Note: API requests are not authenticated.` yet to implement `
 
-*  See https://github.com/nikipoatgit/ussoi_camfeed for Host Implementation.
+> **⚠️ Important Note:**
+> *  See https://github.com/nikipoatgit/ussoi_camfeed for Android Client  
+> *  See https://github.com/nikipoatgit/GCS_For_USSOI for Host Implementation
+
+#### Future Updates 
+* ability to add turn server and self host one on (tcp only if tunnel don't support udp )
+* Basic authentication 
+* api access based on role  
+* MSE + Websocket (this will take time as i have to build it from scratch )
+
 
 ## 📑 Table of Contents
 
@@ -13,7 +22,6 @@
   - [Control API](#2-control-api-wsipcontrolapi)
   - [Telemetry API](#3-telemetry-api-wsiptelemetry)
 - [Getting Started](#-getting-started)
-- [Notes](#-notes)
 ---
 
 ##  System Architecture
@@ -28,7 +36,7 @@
 
 ##  API Endpoints
 
-The system exposes three primary WebSocket endpoints for different functionalities.
+The system connects three  WebSocket endpoints (Assuming Host is listening on it )for different functionalities.
 
 ### 1. Streaming API: `ws://<ip>/streaming`
 
@@ -188,4 +196,7 @@ Request a  status report from the Android device.
 ### 3. Telemetry API: `ws://<ip>/telemetry`
 * This endpoint provides a raw, bi-directional communication channel for UART/serial data. Any data sent or received through this WebSocket is forwarded directly to/from the connected hardware. Data is transmitted as a raw byte stream.
 ---
+## Get Started 
+
+
 ### end of file 
