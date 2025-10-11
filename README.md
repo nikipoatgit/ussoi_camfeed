@@ -6,6 +6,8 @@
 > *  See https://github.com/nikipoatgit/ussoi_camfeed for Android Client  
 > *  See https://github.com/nikipoatgit/GCS_For_USSOI for Host Implementation
 
+# ![ussoiUseExample](doc\ussoiUseExample.png)
+
 #### Future Updates 
 * ability to add turn server and self host one on (tcp only if tunnel don't support udp )
 * Basic authentication 
@@ -21,7 +23,7 @@
   - [Streaming API](#1-streaming-api-wsipstreaming)
   - [Control API](#2-control-api-wsipcontrolapi)
   - [Telemetry API](#3-telemetry-api-wsiptelemetry)
-- [Getting Started](#-getting-started)
+- [Getting Started](#get_started )
 ---
 
 ##  System Architecture
@@ -195,8 +197,28 @@ Request a  status report from the Android device.
 
 ### 3. Telemetry API: `ws://<ip>/telemetry`
 * This endpoint provides a raw, bi-directional communication channel for UART/serial data. Any data sent or received through this WebSocket is forwarded directly to/from the connected hardware. Data is transmitted as a raw byte stream.
+
 ---
 ## Get Started 
+  * Install Application From [Release](https://github.com/nikipoatgit/USSOI-CAM/releases/) or Clone repo in Android Studios Code : `https://github.com/nikipoatgit/USSOI-CAM.git`
+  * Select Buttons according to use Case :
+    * Case USB :  
+        1. Enable Mavlink  
+        2.  Enable video streaming if required ( if want to switch to  TURN / MSE turn it off and use api to enable streaming ) 
+        3. Enter Baudrate 
+        4. Enter URL
+        5. Start Service 
+        6. <img src="doc/ussoiMainUI.jpg" alt="USSOI user interface" height="500px">
 
+    * Case BT : 
+        1. Enable Mavlink  
+        2.  Enable video streaming if required ( if want to switch to  TURN / MSE turn it off and use api to enable streaming ) 
+        3. Enable BT 
+        4. Enter URL
+        5. Start Service
+        6. Select Paired BT device (RFCOMM)
+        7. <img src="doc\ussoiBTUI.jpg" alt="USSOI user interface" height="600px">
+    * Illustration:    
+      ![ussoiUseExample](doc\ussoiUseExample.png)
 
-### end of file 
+## end of file 
