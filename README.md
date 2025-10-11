@@ -6,7 +6,7 @@
 > *  See https://github.com/nikipoatgit/ussoi_camfeed for Android Client  
 > *  See https://github.com/nikipoatgit/GCS_For_USSOI for Host Implementation
 
-# ![ussoiUseExample](doc\ussoiUseExample.png)
+# ![ussoiUseExample](doc/ussoiUseExample.png)
 
 #### Future Updates 
 * ability to add turn server and self host one on (tcp only if tunnel don't support udp )
@@ -219,6 +219,6 @@ Request a  status report from the Android device.
         6. Select Paired BT device (RFCOMM)
         7. <img src="doc\ussoiBTUI.jpg" alt="USSOI user interface" height="600px">
     * Illustration:    
-      ![ussoiUseExample](doc\ussoiUseExample.png)
+      ![ussoiUseExample](doc/ussoiUseExample.png)
 
 ## end of file 
